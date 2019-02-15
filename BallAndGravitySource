@@ -1,0 +1,74 @@
+# -- coding: utf-8 -- Enable direct Unicade-8 encoding
+# https://www.youtube.com/watch?v=-cKzsRcu2oA
+# A Ball and Gravity
+
+    # Imports #
+import pygame, random, sys
+
+    # Main #
+def main():
+        # Variables - Local
+    WHITE = (255, 255, 255)
+    RED = (255, 0, 0)
+    BLACK = (0, 0, 0)
+
+        # Main Code
+    pygame.init()
+
+    v_ScreenSize = (1000, 800)
+
+    y_Screen = pygame.display.set_mode(v_ScreenSize)
+    pygame.display.set_caption("Gravity")
+    y_Screen.fill(WHITE)
+    pygame.display.flip()
+
+    y_Clock = pygame.time.Clock()
+    v_FPS = 120
+    v_Running = True
+    v_Speed = 9.81 / v_FPS ## Grav accel. K m/s^2 (mks) per frame update (9.80665 m/s^2, or about 32.17405 ft/s2).
+    v_OverallSpeed = v_Speed
+    v_Pos = ( random.randint(1, 999), random.randint(1, 700) )
+    v_Direction = "pos"
+    v_BallSize = 26
+    v_Total = 0
+    v_Effect = 1.2 ## Amount energy loss per bounce K (Smaller is higher bounces)
+
+    while v_Running:
+        y_Screen.fill(WHITE)
+        for _Event in pygame.event.get():
+            if _Event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if _Event.type == pygame.KEYDOWN:
+                if _Event.key == pygame.K_r:
+                    v_Pos = ( random.randint(1, 999), random.randint(1, 799) )
+                    v_Direction = "pos"
+
+        if v_Direction == "pos":
+            v_BallSpeed = v_Speed + v_OverallSpeed
+            v_OverallSpeed = v_BallSpeed
+            v_Pos = ( v_Pos[0], round(v_Pos[1] + v_OverallSpeed) )
+
+        elif v_Direction == "neg":
+            v_BallSpeed = v_Total - v_Speed
+            v_Total = v_BallSpeed
+            v_Pos = ( v_Pos[0], round(v_Pos[1] - v_BallSpeed) )
+
+
+        if v_Pos[1] >= 700 - v_BallSize and v_Direction == "pos":
+            v_Pos = (v_Pos[0], 700 - v_BallSize - 1)
+            v_Total = v_OverallSpeed / v_Effect ## v_OverallSpeed by energy loss v_Effect
+            v_OverallSpeed = 0
+            v_Direction = "neg"
+
+        if v_Total <= 0 and v_Direction == "neg":
+            v_Direction = "pos"
+        pygame.draw.rect(y_Screen, BLACK, (0, 700, 1000, 100) )
+        pygame.draw.circle(y_Screen, RED, v_Pos, v_BallSize)
+
+        pygame.display.flip()
+        y_Clock.tick(v_FPS)
+
+    # Main Loop #
+if __name__ == '__main__':
+    main()
